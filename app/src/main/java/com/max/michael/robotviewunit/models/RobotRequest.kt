@@ -1,6 +1,6 @@
 package com.max.michael.robotviewunit.models
 
-abstract class RobotRequest
+open class RobotRequest
 {
     var type:String = ""
 }

@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream
 import java.net.Socket
 import kotlinx.coroutines.*
 import java.io.IOException
+import java.util.*
 
 
 class MainActivity : AppCompatActivity() {
@@ -34,28 +35,35 @@ class MainActivity : AppCompatActivity() {
         list.add(MotorRequest("1", "2", "100", "9000"))
 
 
-        val ipAdress = ip_ET.text.toString()
 
         connect_btn.setOnClickListener()
         {
 
-            val thread = Thread {
-                val socket = Socket(ipAdress, 12345)
-                val outPutStream = ObjectOutputStream(socket.getOutputStream())
-                val gson = Gson()
+//            val thread = Thread {
+//                val socket = Socket(ipAdress, 12345)
+//                val outPutStream = ObjectOutputStream(socket.getOutputStream())
+//                val gson = Gson()
+//
+//                val toJson = gson.toJson(list)
+//
+//                try
+//                {
+//                    outPutStream.writeObject(list)
+//                }catch (e: IOException)
+//                {
+//                    e.printStackTrace()
+//                }
+//            }
+//
+//            thread.start()
 
-                val toJson = gson.toJson(list)
-
-                try
-                {
-                    outPutStream.writeObject(list)
-                }catch (e: IOException)
-                {
-                    e.printStackTrace()
-                }
-            }
-
-            thread.start()
+            val ipAdress = ip_ET.text.toString()
+            val gson = Gson()
+            val angle = motorAngle_ET.text.toString()
+            val request = MotorRequest(UUID.randomUUID().toString(),"A","100",angle)
+            val jsonFile = gson.toJson(request)
+            val connectTask = ConnectTask(this).setPayload(jsonFile)
+                .execute(ipAdress,null,null)
 
         }
 
