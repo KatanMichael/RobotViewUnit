@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream
 import java.net.Socket
 import kotlinx.coroutines.*
 import java.io.IOException
+import java.io.ObjectInputStream
 import java.util.*
 
 
@@ -39,53 +40,35 @@ class MainActivity : AppCompatActivity() {
         connect_btn.setOnClickListener()
         {
 
-//            val thread = Thread {
-//                val socket = Socket(ipAdress, 12345)
-//                val outPutStream = ObjectOutputStream(socket.getOutputStream())
-//                val gson = Gson()
-//
-//                val toJson = gson.toJson(list)
-//
-//                try
-//                {
-//                    outPutStream.writeObject(list)
-//                }catch (e: IOException)
-//                {
-//                    e.printStackTrace()
-//                }
-//            }
-//
-//            thread.start()
-
             val ipAdress = ip_ET.text.toString()
             val gson = Gson()
             val angle = motorAngle_ET.text.toString()
             val request = MotorRequest(UUID.randomUUID().toString(),"A","100",angle)
             val jsonFile = gson.toJson(request)
-            val connectTask = ConnectTask(this).setPayload(jsonFile)
-                .execute(ipAdress,null,null)
 
+            GlobalScope.launch(Dispatchers.Default) {
+                sendJsonToRobot(ipAdress,jsonFile)
+            }
         }
 
 
     }
 
-    inner class myAsync : AsyncTask<Void?, Void?, Int>() {
+    //Transfer To Controller
+    fun sendJsonToRobot(ipAddress: String, jsonFile: String)
+    {
+        val socket = Socket(ipAddress,1234)
 
-        val ipAdress = (ip_ET as TextView).text.toString()
+        val inputString = ObjectInputStream(socket.getInputStream())
+        val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
-        override fun doInBackground(vararg params: Void?): Int {
-            val socket = Socket(ipAdress, 12345)
-            val outPutStream = ObjectOutputStream(socket.getOutputStream())
-            val gson = Gson()
+        objectOutputStream.writeObject(jsonFile)
 
-            val toJson = gson.toJson(list)
+        //For Changing UI From The Network Thread
 
-            outPutStream.writeObject(list)
-
-
-            return 1
-        }
-
+//        val readObject = inputString.readObject() as String
+//        GlobalScope.launch(Dispatchers.Main) {
+//            inputTv.text = readObject
+//        }
     }
 }
