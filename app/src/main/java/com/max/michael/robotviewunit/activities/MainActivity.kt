@@ -62,7 +62,9 @@ class MainActivity : AppCompatActivity() {
         val inputString = ObjectInputStream(socket.getInputStream())
         val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
 
-        objectOutputStream.writeObject(jsonFile)
+
+
+        //objectOutputStream.writeObject(jsonFile)
 
         //For Changing UI From The Network Thread
 
