@@ -84,18 +84,18 @@ class MainActivity : AppCompatActivity() {
     //Transfer To Controller
     fun sendJsonToRobot(ipAddress: String, jsonFile: String)
     {
-//        val socket = Socket(ipAddress,1234)
-//
-//        val inputString = ObjectInputStream(socket.getInputStream())
-//        val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+        val socket = Socket(ipAddress,12345)
+
+        val inputString = ObjectInputStream(socket.getInputStream())
+        val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+        objectOutputStream.writeObject(jsonFile)
+
+
 
 
         GlobalScope.launch(Dispatchers.Main) {
-            sequenceTv.text = jsonFile
+            sequenceTv.text = socket.toString()
         }
-
-        //objectOutputStream.writeObject(jsonFile)
-
         //For Changing UI From The Network Thread
 
 //        val readObject = inputString.readObject() as String
