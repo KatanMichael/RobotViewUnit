@@ -1,27 +1,25 @@
 package com.max.michael.robotviewunit.activities
 
-import android.os.AsyncTask
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.text.Editable
-import android.widget.TextView
+import android.util.Log
 import com.google.gson.Gson
 import com.max.michael.robotviewunit.R
-import com.max.michael.robotviewunit.R.id.async
-import com.max.michael.robotviewunit.models.DelayRequest
 import com.max.michael.robotviewunit.models.MotorRequest
 import com.max.michael.robotviewunit.models.Request
 import com.max.michael.robotviewunit.models.RobotRequest
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.net.Socket
-import kotlinx.coroutines.*
-import java.io.IOException
-import java.io.ObjectInputStream
 import java.util.*
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity()
+{
 
     val list = ArrayList<RobotRequest>()
 
@@ -29,7 +27,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val list = ArrayList<RobotRequest>()
+        val list = ArrayList<MotorRequest>()
 
 
         connect_btn.setOnClickListener()
@@ -42,6 +40,8 @@ class MainActivity : AppCompatActivity() {
 
             val jsonFile = gson.toJson(request)
 
+            Log.d("JsonFile",jsonFile)
+
             GlobalScope.launch(Dispatchers.Default) {
                 sendJsonToRobot(ipAdress,jsonFile)
             }
@@ -53,23 +53,21 @@ class MainActivity : AppCompatActivity() {
 
             if(angle != "")
             {
-                list.add(MotorRequest(getRandomID(),"A","100",angle))
+                var delayAmount : String = "0"
+                if(delay_ET.text.toString() == "")
+                {
+                    delayAmount = "0"
+                }else
+                {
+                    delayAmount = delay_ET.text.toString()
+                }
+
+                list.add(MotorRequest(getRandomID(),"A","100",angle,delayAmount))
                 refreshSequenceTv("Motor $angle")
                 motorAngle_ET.text.clear()
             }
         }
 
-        addDelayBtn.setOnClickListener()
-        {
-            val amount = delay_ET.text.toString()
-
-            if(amount != "")
-            {
-                list.add(DelayRequest(getRandomID(),Integer.parseInt(amount)))
-                refreshSequenceTv("Delay $amount")
-                motorAngle_ET.text.clear()
-            }
-        }
 
     }//onCreate
 
@@ -86,11 +84,18 @@ class MainActivity : AppCompatActivity() {
     {
         val socket = Socket(ipAddress,12345)
 
-        val inputString = ObjectInputStream(socket.getInputStream())
         val objectOutputStream = ObjectOutputStream(socket.getOutputStream())
+
+        val stringTest: String = "123"
+
         objectOutputStream.writeObject(jsonFile)
 
 
+
+        objectOutputStream.flush()
+        objectOutputStream.close()
+
+        socket.close()
 
 
         GlobalScope.launch(Dispatchers.Main) {
