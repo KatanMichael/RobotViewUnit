@@ -1,10 +1,12 @@
 package com.max.michael.robotviewunit.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.util.Log
 import com.google.gson.Gson
 import com.max.michael.robotviewunit.R
+import com.max.michael.robotviewunit.R.id.connect_btn
 import com.max.michael.robotviewunit.models.MotorRequest
 import com.max.michael.robotviewunit.models.Request
 import com.max.michael.robotviewunit.models.RobotRequest
@@ -23,7 +25,8 @@ class MainActivity : AppCompatActivity()
 
     val list = ArrayList<RobotRequest>()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?)
+    {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
@@ -36,7 +39,14 @@ class MainActivity : AppCompatActivity()
             val ipAdress = ip_ET.text.toString()
             val gson = Gson()
 
+            val m1 = MotorRequest(getRandomID(),"A","100","10","100")
+            val m2 = MotorRequest(getRandomID(),"B","100","-10","0")
+
+            list.add(m1)
+            list.add(m2)
+
             val request = Request(UUID.randomUUID().toString(), list,list.size)
+
 
             val jsonFile = gson.toJson(request)
 
@@ -45,6 +55,12 @@ class MainActivity : AppCompatActivity()
             GlobalScope.launch(Dispatchers.Default) {
                 sendJsonToRobot(ipAdress,jsonFile)
             }
+        }
+
+        mongoTestBtn.setOnClickListener()
+        {
+            val intent = Intent(this,MongoActivity::class.java)
+            startActivity(intent)
         }
 
         addMotorBtn.setOnClickListener()
@@ -62,7 +78,7 @@ class MainActivity : AppCompatActivity()
                     delayAmount = delay_ET.text.toString()
                 }
 
-                list.add(MotorRequest(getRandomID(),"A","100",angle,delayAmount))
+                list.add(MotorRequest(getRandomID(),port_ET.text.toString().toUpperCase(),"100",angle,delayAmount))
                 refreshSequenceTv("Motor $angle")
                 motorAngle_ET.text.clear()
             }
